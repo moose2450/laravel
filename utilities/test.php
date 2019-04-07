@@ -40,6 +40,8 @@ $test = new analyzeDataClass();
 
 for($i = 0; $i < 1; $i++){
     $result = $test->RandomNumberPicker($numbers);
+    //print_r($result[0]);
+
     // print_r($result[1]);
    /* foreach($result[1] AS $key => $val){
         echo $key."\n";
@@ -80,10 +82,8 @@ for($i = 0; $i < 1; $i++){
 }
 
 unset($test);
-exit;
 
-echo "Check past winners...\n\n";
-
+echo "Check past winners...\n";
 $test = new analyzeDataClass();
 
 $test->AnalyzeWinningNumbers();
@@ -98,7 +98,8 @@ class analyzeDataClass {
     public $UnderOver = array("0/12" => 0, "1/11" => 0, "2/10" => 0, "3/9" => 0, "4/8" => 0, "5/7" => 0, "6/6" => 0, "7/5" => 0, "8/4" => 0, "9/3" => 0, "10/2" => 0, "11/1" => 0, "12/0" => 0);
     public $EvenOddMix = array("0/12" => 0, "1/11" => 0, "2/10" => 0, "3/9" => 0, "4/8" => 0, "5/7" => 0, "6/6" => 0, "7/5" => 0, "8/4" => 0, "9/3" => 0, "10/2" => 0, "11/1" => 0, "12/0" => 0);
     public $ConsecNumbers = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    public $PickedNumbers = array();
+    public $NonConsecNumbers = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    public $PickedNumbers = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
     public function __construct()
     {
@@ -122,8 +123,6 @@ class analyzeDataClass {
             echo "No connection.\n";
             die();
         }
-
-        // print_r($result);
     }
 
     public function RandomNumberPicker($numbers)
@@ -183,28 +182,18 @@ class analyzeDataClass {
                 $chk = $val;
                 $i++;
             } else {
-                //echo "Comparing #".$i." :: ".$chk. " ";
                 $i++;
-                //echo "with #".$i." :: ".$val." RESULT IS: ";
-
-                // Lets figure out if the two numbers are consecutive and keep a tally.
 
                 if($val - $chk == 1){
-                    //echo "consecutive";
                     $c++;
                 }else{
                     if($c > $max) $max = $c;
                     $c = 1;
                 }
-
-                //echo " ". $c. "\n";
-
-                // After finishing analysis, set $chk value to the last analyzed number.
                 $chk = $val;
             }
         }
         if($c > $max) $max = $c;
-
         $this->ConsecNumbers[$max] += 1;
     }
 
@@ -249,64 +238,23 @@ class analyzeDataClass {
                 $chk = $val;
                 $i++;
             } else {
-                //echo "Comparing #".$i." :: ".$chk. " ";
                 $i++;
-                //echo "with #".$i." :: ".$val." RESULT IS: ";
-
-                // Lets figure out if the two numbers are consecutive and keep a tally.
-
                 if($val - $chk == 1){
-                    //echo "consecutive";
                     $c++;
                 }else{
                     if($c > $max) $max = $c;
                     $c = 1;
                 }
-
-                //echo " ". $c. "\n";
-
-                // After finishing analysis, set $chk value to the last analyzed number.
                 $chk = $val;
             }
         }
         if($c > $max) $max = $c;
-        //echo "Max was ". $max."\n";
-        /*if($max == 1){
-            exit;
-        }*/
-
-        // print_r($result);
 
         $this->UnderOver[$under."/".$over] += 1;
         $this->EvenOddMix[$even."/".$odd] += 1;
         $this->ConsecNumbers[$max] += 1;
+        // $this->NonConsecNumbers[$max] += 1;
         return array($this->UnderOver, $this->EvenOddMix, $this->ConsecNumbers); // , $this->PickedNumbers Mix of Picked Numbers is fully random since any number has equal chance to get picked first.
-    }
-
-    public function output($key, $val, $total, $message){
-        $percent = $val / $total;
-        $percent = number_format($percent * 100, 2, '.', ',');
-
-        if($percent < 1) {
-            $dilute = $this->cn["white"];
-            $per = $this->cn["red"];
-        }elseif($percent < 10){
-            $dilute = $this->cn["white"];
-            $per = $this->cn["yellow"];
-        }else{
-            $dilute = $this->cb["white"];
-            $per = $this->cb["green"];
-        }
-
-        echo $key;
-        echo spc(5, $key);
-
-        echo $dilute." ".$message." ";
-        echo spc(20, " ".$message." ");
-        echo spc(7, $percent." %");
-        echo $per;
-        echo $percent." %\n";
-        echo $this->cb["reset"];
     }
 
     public function __destruct()
@@ -334,9 +282,32 @@ class analyzeDataClass {
         }
 
         echo "\n\n";
-        //echo "\n\nPicked Numbers: \n\n";
-        //ksort($this->PickedNumbers);
-        //print_r($this->PickedNumbers);
+    }
+
+    public function output($key, $val, $total, $message){
+        $percent = $val / $total;
+        $percent = number_format($percent * 100, 2, '.', ',');
+
+        if($percent < 1) {
+            $dilute = $this->cn["white"];
+            $per = $this->cn["red"];
+        }elseif($percent < 10){
+            $dilute = $this->cn["white"];
+            $per = $this->cn["yellow"];
+        }else{
+            $dilute = $this->cb["white"];
+            $per = $this->cb["green"];
+        }
+
+        echo $key;
+        echo spc(5, $key);
+
+        echo $dilute." ".$message." ";
+        echo spc(20, " ".$message." ");
+        echo spc(7, $percent." %");
+        echo $per;
+        echo $percent." %\n";
+        echo $this->cb["reset"];
     }
 }
 
