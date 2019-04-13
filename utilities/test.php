@@ -47,6 +47,7 @@ for($i = 0; $i < 1; $i++){
         echo $key."\n";
     }*/
 
+   print_r($result[0]);
     // sweet spots:
     // $this->UnderOver, $result[1][0];
     // print_r($result[1][0]);
@@ -78,11 +79,13 @@ for($i = 0; $i < 1; $i++){
     }*/
 
     print_r($result[0]);
+    print_r($result);
     unset($result);
 }
 
 unset($test);
 
+exit;
 echo "Check past winners...\n";
 $test = new analyzeDataClass();
 
